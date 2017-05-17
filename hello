@@ -1,0 +1,41 @@
+import java.sql.*;
+
+public class MainSelect2 {
+
+    private static final String SELECT_PRODUCTS_QUERY =
+            "SELECT * FROM products";
+    private static final String PRODUCT_MESSAGE_TEMPLATE =
+            "Product id: %d, description:%s, name:%s, price:%f";
+
+    public static void main(String[] args) {
+        try (Connection connection = createConnection();
+             PreparedStatement preparedStatement =
+                     connection.prepareStatement(SELECT_PRODUCTS_QUERY);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String description = resultSet.getString("description");
+                String name = resultSet.getString("name");
+                double price = resultSet.getDouble("price");
+                System.out.println(String.format(PRODUCT_MESSAGE_TEMPLATE, id,
+                        cutString(description),
+                        name, price));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String cutString(String text){
+        if(text.length() > 20){
+            return text.substring(0,20) + "...";
+        }else{
+            return text;
+        }
+    }
+
+    private static Connection createConnection() throws SQLException {
+        return DriverManager.getConnection("jdbc:mysql://localhost:3306/products_ex",
+                "root", "admin");
+    }
+}
